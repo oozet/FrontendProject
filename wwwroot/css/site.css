@@ -1,0 +1,57 @@
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+  font-size: 14px;
+}
+
+body {
+  margin-top: 0px;
+  margin-left: 0px;
+  min-height: 100%;
+}
+
+#container {
+  display: grid;
+  height: 100%;
+  grid-template-rows: 50px 30px auto 40px;
+}
+
+#header {
+  background-color: #aca500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", Arial, sans-serif;
+  font-size: large;
+}
+
+#navbar {
+  background-color: #98c0c5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#navbar a {
+  color: #4a4737;
+}
+
+#content {
+  background-color: #fcf9f0;
+  color: #4a4737;
+}
+
+#footer {
+  background-color: #999265;
+}
+
+.text-wrapper {
+  padding-left: 2rem;
+}
