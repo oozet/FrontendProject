@@ -3,7 +3,6 @@
  * {@link fetchAllDummyJSON} if localStorage is empty.
  * @returns {Promise<{users: Array<Object>, posts: Array<Object>, comments: Array<Object>}>}
  * @throws {Error} Throws an error if any of the fetch operations fail.
- * @see fetchAllDummyJSON
  */
 async function fetchPosts() {
   let data;
@@ -60,11 +59,11 @@ async function fetchAllDummyJSON() {
 
 /**
  * Displays data on a webpage.
- * @param {Array} data
+ * @param {Array<{users: Array<Object>, posts: Array<Object>, comments: Array<Object>}>} data
  */
 function renderPosts(data) {
-  const contentDiv = document.getElementById("content");
-  contentDiv.innerHTML = ""; // Clear any existing content
+  const mainContent = document.getElementById("main-content");
+  mainContent.innerHTML = ""; // Clear any existing content
 
   data.posts.forEach((post) => {
     let bodyPreview = post.body.slice(0, 60);
@@ -75,15 +74,15 @@ function renderPosts(data) {
     const title = "<h2>" + post.title + "</h2>";
     const tags = "<p>" + post.tags + "</p";
     const author = "<p>" + "</p>";
-    const postElement = document.createElement("div");
+    const postElement = document.createElement("article");
     postElement.className = "post";
     postElement.innerHTML = title + bodyPreview + tags + author;
-    contentDiv.appendChild(postElement);
+    mainContent.appendChild(postElement);
   });
 }
 
 /**
- * Calls function to fetch data and function to render it in a posts div on a webpage.
+ * Calls {@link fetchPosts} to fetch data and {@link renderPosts} to render it in a posts div on a webpage.
  * @returns {Promise<void>}
  */
 async function fetchData() {
