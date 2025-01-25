@@ -29,16 +29,16 @@ async function fetchPosts() {
 async function fetchAllDummyJSON() {
   try {
     const [usersResponse, postsResponse, commentsResponse] = await Promise.all([
-      fetch("https://dummyjson.com/users"),
-      fetch("https://dummyjson.com/posts"),
-      fetch("https://dummyjson.com/comments"),
+      fetch("https://dummyjson.com/users?limit=0"),
+      fetch("https://dummyjson.com/posts?limit=0"),
+      fetch("https://dummyjson.com/comments?limit=0"),
     ]);
 
     if (!usersResponse.ok) throw new Error("Failed to fetch users");
     if (!postsResponse.ok) throw new Error("Failed to fetch posts");
     if (!commentsResponse.ok) throw new Error("Failed to fetch comments");
 
-    console.log("userResponse: " + usersResponse);
+    console.log("Data fetched from DummyJSON API.");
 
     const users = await usersResponse.json();
     const posts = await postsResponse.json();
@@ -69,23 +69,65 @@ function renderPosts(data) {
     let bodyPreview = post.body.slice(0, 60);
     const spaceIndex = bodyPreview.lastIndexOf(" ");
     if (spaceIndex > 40) {
-      bodyPreview = "<p>" + bodyPreview.slice(0, spaceIndex) + "..</p>";
+      bodyPreview = bodyPreview.slice(0, spaceIndex);
     }
+    bodyPreview = "<p>" + bodyPreview + "..</p>";
     const title = "<h2>" + post.title + "</h2>";
     const tags = "<p>" + post.tags + "</p";
-    const author = "<p>" + "</p>";
+    const author = "<p><b> - " + data.users.filter((user) => user.id == post.userId)[0].username + "</b></p>";
     const postElement = document.createElement("article");
-    postElement.className = "post";
+    postElement.addEventListener("click", () => {
+      showPost(post);
+    });
+    postElement.className = "postPreview";
+    postElement.id = "post" + post.id;
     postElement.innerHTML = title + bodyPreview + tags + author;
     mainContent.appendChild(postElement);
   });
+}
+
+async function showPost(post) {
+  const mainContent = document.getElementById("main-content");
+  mainContent.innerHTML = ""; // Clear any existing content
+
+  const title = "<h2>" + post.title + "</h2>";
+  const body = "<p>" + post.body + "<p>";
+  const tags = "<p>" + post.tags + "</p";
+  const likes = post.reactions.likes > 0 ? post.reactions.likes + "❤️ : " : "";
+  const dislikes = post.reactions.dislikes > 0 ? post.reactions.dislikes + "💩" : "";
+  const reactions = "<p>" + likes + dislikes + "</p>";
+  const author = "<p>" + "</p>";
+  const postElement = document.createElement("article");
+  postElement.className = "post";
+  postElement.innerHTML = title + body + tags + author + reactions;
+  mainContent.appendChild(postElement);
+  const comments = await getComments(post.id);
+  comments.forEach((comment) => {
+    mainContent.appendChild(showComment(comment));
+  });
+}
+
+async function getComments(postId) {
+  const data = await fetchPosts();
+  return data.comments.filter((comment) => comment.postId == postId);
+}
+
+function showComment(comment) {
+  const body = "<p>" + comment.body + "<p>";
+  const author = "<p>" + comment.user.username + "<p>";
+  const likes = "<p>" + comment.likes + "❤️<p>";
+
+  const commentElement = document.createElement("article");
+  commentElement.className = "comment";
+  commentElement.innerHTML = body + author + likes;
+  return commentElement;
 }
 
 /**
  * Calls {@link fetchPosts} to fetch data and {@link renderPosts} to render it in a posts div on a webpage.
  * @returns {Promise<void>}
  */
-async function fetchData() {
+async function onPageLoad() {
   try {
     const data = await fetchPosts();
     console.log(data);
@@ -96,4 +138,4 @@ async function fetchData() {
 }
 
 // Call fetchData to initiate the process
-fetchData();
+onPageLoad();
