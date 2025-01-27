@@ -2,14 +2,26 @@ const clearLink = document.getElementById("clear-link");
 
 // Add an event listener to clear localStorage when the link is clicked
 clearLink.addEventListener("click", function (event) {
-  event.preventDefault(); // Prevent the default link behavior
+  event.preventDefault();
   localStorage.clear();
   alert("LocalStorage has been cleared!");
 });
 
+const newPostLink = document.getElementById("newPost-link");
+newPostLink.addEventListener("click", function (event) {
+  event.preventDefault();
+  renderNewPostForm();
+});
+
+const loginLink = document.getElementById("login-link");
+loginLink.addEventListener("click", function (event) {
+  event.preventDefault();
+  renderAllUsers();
+});
+
 const redditLink = document.getElementById("reddit-link");
 redditLink.addEventListener("click", function (event) {
-  event.preventDefault(); // Prevent the default link behavior
+  event.preventDefault();
   //getRedditPosts();
   alert("Data not retrieved from reddit because credentials are required!");
 });

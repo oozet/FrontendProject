@@ -25,7 +25,6 @@ header {
   background-color: #aca500;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   font-size: large;
   color: #98c0c5;
   padding-left: 2rem;
@@ -33,10 +32,8 @@ header {
 }
 
 nav {
-  justify-self: right;
   display: flex;
   align-items: center;
-  justify-content: center;
   font-size: 14px;
   font-weight: bold;
 }
@@ -69,7 +66,22 @@ article {
   width: 20rem;
 }
 
+form {
+  display: flex;
+  flex-direction: column;
+}
+label {
+  margin-top: 1rem;
+}
+textarea {
+  height: 6rem;
+}
+
 h2 {
   font-size: 16px;
   font-weight: bold;
+}
+#navbar {
+  margin-left: auto;
+  margin-right: auto;
 }
