@@ -63,7 +63,7 @@ async function fetchAllDummyJSON() {
  * @param postId number identifier for the post to retrieve comments for.
  * @returns {Promise<{comments: Array<Object>}>}
  */
-async function getCommentsForPost(postId) {
+function getCommentsForPost(postId) {
   return data.comments.filter((comment) => comment.postId == postId);
 }
 
@@ -84,7 +84,7 @@ function renderNewPostForm() {
     formElement.appendChild(
       Object.assign(document.createElement("label"), {
         htmlFor: "title",
-        innerText: "Title:",
+        textContent: "Title:",
       })
     );
     const titleInput = document.createElement("input");
@@ -97,7 +97,7 @@ function renderNewPostForm() {
     formElement.appendChild(
       Object.assign(document.createElement("label"), {
         htmlFor: "body",
-        innerText: "Message:",
+        textContent: "Message:",
       })
     );
     const bodyTextarea = document.createElement("textarea");
@@ -115,7 +115,7 @@ function renderNewPostForm() {
     formElement.appendChild(
       Object.assign(document.createElement("label"), {
         htmlFor: "tags",
-        innerText: "Tags:",
+        textContent: "Tags:",
       })
     );
     formElement.appendChild(
@@ -130,7 +130,7 @@ function renderNewPostForm() {
     formElement.appendChild(
       Object.assign(document.createElement("label"), {
         htmlFor: "user",
-        innerText: "Posting user:",
+        textContent: "Posting user:",
       })
     );
     const selectElement = document.createElement("select");
@@ -212,7 +212,7 @@ function renderPosts() {
     postElement.innerHTML = title + bodyPreview + tags + author;
     // Add clicking
     postElement.addEventListener("click", () => {
-      renderPost(post, username);
+      renderPost(post);
     });
     // Add accessibility
     postElement.tabIndex = "0";
@@ -230,24 +230,50 @@ function renderPosts() {
  * @param post Post to render.
  * @param username Username of poster.
  */
-async function renderPost(post) {
+function renderPost(post) {
   const mainContent = document.getElementById("main-content");
   mainContent.innerHTML = ""; // Clear any existing content
 
   const username = data.users.filter((user) => user.id == post.userId)[0].username;
 
-  const title = "<h2>" + post.title + "</h2>";
-  const body = "<p>" + post.body + "<p>";
-  const tags = "<p>" + post.tags + "</p";
-  const likes = post.reactions.likes > 0 ? post.reactions.likes + "❤️ : " : "";
-  const dislikes = post.reactions.dislikes > 0 ? post.reactions.dislikes + "💩" : "";
-  const reactions = "<p>" + likes + dislikes + "</p>";
-  const author = "<p><b> - " + username + "</b></p>";
   const postElement = document.createElement("article");
+  postElement.append(
+    Object.assign(document.createElement("h2"), {
+      textContent: post.title,
+    }),
+    Object.assign(document.createElement("p"), {
+      textContent: post.body,
+    }),
+    Object.assign(document.createElement("p"), {
+      textContent: post.tags,
+    }),
+    Object.assign(document.createElement("b"), {
+      innerHTML: "<b>" + username + "</b>",
+    })
+  );
+
+  const likes = Object.assign(document.createElement("p"), {
+    textContent: post.reactions.likes,
+  });
+  likes.appendChild(Object.assign(document.createElement("div"), { className: "react", textContent: "❤️" }));
+  likes.addEventListener("click", () => {
+    post.reactions.likes++;
+    likes.textContent = post.reactions.likes + "❤️";
+  });
+  const dislikes = Object.assign(document.createElement("p"), {
+    className: "react",
+    textContent: post.reactions.dislikes + "💩",
+  });
+  dislikes.addEventListener("click", () => {
+    post.reactions.dislikes++;
+    dislikes.textContent = post.reactions.dislikes + "💩";
+  });
+
+  postElement.append(likes, dislikes);
+
   postElement.className = "post";
-  postElement.innerHTML = title + body + tags + author + reactions;
   mainContent.appendChild(postElement);
-  const comments = await getCommentsForPost(post.id);
+  const comments = getCommentsForPost(post.id);
   const commentElement = document.createElement("article");
   comments.forEach((comment) => {
     commentElement.appendChild(showComment(comment));
@@ -280,20 +306,24 @@ function getUsername(userId) {
   return data.users.filter((user) => user.id == userId)[0].username;
 }
 
-async function submitFormData() {
+function submitFormData() {
   let newPost;
   try {
     // Getting form data
     const title = document.getElementById("title").value;
     const body = document.getElementById("body").value;
     const tags = document.getElementById("tags").value;
+    const cleanedTags = tags
+      .split(/\s+/) // Split by whitespace
+      .map((word) => word.replace(/[^a-zA-Z0-9]/g, "")) // Remove non-alphanumeric characters
+      .filter((word) => word.length > 0); // Filter out any empty strings
     const userId = document.getElementById("userId").value;
     const id = data.posts.reduce((max, post) => (post.id > max ? post.id : max), 0) + 1;
     newPost = {
       id: id,
       title: title,
       body: body,
-      tags: tags,
+      tags: cleanedTags,
       reactions: {
         likes: 0,
         dislikes: 0,
@@ -316,7 +346,6 @@ async function submitFormData() {
 
 /**
  * Calls {@link fetchData} to fetch data and {@link renderPosts} to render it in a posts div on a webpage.
- * @returns {Promise<void>}
  */
 async function onPageLoad() {
   try {
