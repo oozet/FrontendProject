@@ -10,7 +10,7 @@ body {
   margin-left: 0px;
   min-height: 100%;
   display: grid;
-  grid-template-rows: 50px auto 40px;
+  grid-template-rows: 50px auto 30px;
 }
 
 header {
@@ -20,7 +20,6 @@ header {
   font-size: large;
   color: #98c0c5;
   padding-left: 2rem;
-  padding-right: 2rem;
 }
 
 nav {
@@ -85,4 +84,8 @@ h2 {
 
 .react:hover {
   cursor: pointer;
+}
+
+.postPreview {
+  height: 12rem;
 }
