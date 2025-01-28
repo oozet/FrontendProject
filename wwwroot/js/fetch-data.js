@@ -1,3 +1,4 @@
+// global data variable for fetched data
 var data;
 
 // ----------- Data retrieval ------------------------------------------------------
@@ -11,7 +12,8 @@ var data;
 async function fetchData() {
   try {
     data = JSON.parse(localStorage.getItem("data")); // Get data from localStorage or null if not exists
-    if (data == null) {
+    if (data == null) // or undefined
+    {
       data = await fetchAllDummyJSON();
 
       localStorage.setItem("data", JSON.stringify(data)); // Store data in localStorage
@@ -38,8 +40,6 @@ async function fetchAllDummyJSON() {
     if (!usersResponse.ok) throw new Error("Failed to fetch users");
     if (!postsResponse.ok) throw new Error("Failed to fetch posts");
     if (!commentsResponse.ok) throw new Error("Failed to fetch comments");
-
-    console.log("Data fetched from DummyJSON API.");
 
     const users = await usersResponse.json();
     const posts = await postsResponse.json();
@@ -71,8 +71,7 @@ function getCommentsForPost(postId) {
 
 /**
  * Renders a form with all users of data.users, Data retrieved by calling {@link fetchData}
- * @returns {Promise<{users: Array<Object>, posts: Array<Object>, comments: Array<Object>}>}
- * @throws {Error} Throws an error if any of the fetch operations fail.
+ * @throws {Error} Throws an error if any of the operations fail.
  */
 function renderNewPostForm() {
   try {
@@ -151,26 +150,52 @@ function renderNewPostForm() {
 
     articleElemenet.appendChild(formElement);
     mainContent.appendChild(articleElemenet);
-    formElement.addEventListener("submit", submitFormData);
+    formElement.addEventListener("submit", submitAddPostFormData);
   } catch (error) {
     console.error("Error while rendering user form: " + error + " Rethrowing to caller.");
     throw error;
   }
 }
 
-function renderAllUsers() {
+/**
+ * Renders a form with all users of data.users, Data retrieved by calling {@link fetchData}
+ * @returns {HTMLElement}
+ * @throws {Error} Throws an error if any of the fetch operations fail.
+ */
+function getAddCommentForm(postId) {
   try {
-    const mainContent = document.getElementById("main-content");
-    mainContent.innerHTML = ""; // Clear any existing content
     const articleElemenet = document.createElement("article");
     const formElement = document.createElement("form");
 
+    formElement.appendChild(
+      Object.assign(document.createElement("label"), {
+        htmlFor: "commentBody",
+        textContent: "Comment:",
+      })
+      );
+    
+    const postIdElement = document.createElement("input");
+    postIdElement.id = "postId";
+    postIdElement.value = postId;
+    postIdElement.type = "hidden";
+    formElement.appendChild(postIdElement);
+
+    const bodyTextarea = document.createElement("textarea");
+    bodyTextarea.id = "commentBody";
+    bodyTextarea.name = "commentBody";
+    bodyTextarea.required = true;
+    formElement.appendChild(bodyTextarea);
+
+    formElement.appendChild(
+      Object.assign(document.createElement("label"), {
+        htmlFor: "user",
+        textContent: "Posting user:",
+      })
+    );
     const selectElement = document.createElement("select");
+    selectElement.id = "userId";
     data.users.forEach((user) => {
-      const optionElement = document.createElement("option");
-      optionElement.value = user.id;
-      optionElement.textContent = user.username;
-      selectElement.appendChild(optionElement);
+      selectElement.appendChild(Object.assign(document.createElement("option"), { value: user.id, textContent: user.username }));
     });
     formElement.appendChild(selectElement);
 
@@ -180,7 +205,9 @@ function renderAllUsers() {
     formElement.appendChild(submitButton);
 
     articleElemenet.appendChild(formElement);
-    mainContent.appendChild(articleElemenet);
+    formElement.addEventListener("submit", submitAddCommentFormData);
+
+    return articleElemenet;
   } catch (error) {
     console.error("Error while rendering user form: " + error + " Rethrowing to caller.");
     throw error;
@@ -196,7 +223,7 @@ function renderPosts() {
   mainContent.innerHTML = ""; // Clear any existing content
 
   data.posts.forEach((post) => {
-    let bodyPreview = post.body.slice(0, 60);
+    let bodyPreview = post.body.substring(0, 60);
     const spaceIndex = bodyPreview.lastIndexOf(" ");
     if (spaceIndex > 40) {
       bodyPreview = bodyPreview.slice(0, spaceIndex);
@@ -281,6 +308,8 @@ function renderPost(post) {
   if (commentElement.hasChildNodes()) {
     mainContent.appendChild(commentElement);
   }
+
+  mainContent.appendChild(getAddCommentForm(post.id));
 }
 
 // --- Rendering helpers ---
@@ -306,7 +335,7 @@ function getUsername(userId) {
   return data.users.filter((user) => user.id == userId)[0].username;
 }
 
-function submitFormData() {
+function submitAddPostFormData() {
   let newPost;
   try {
     // Getting form data
@@ -335,27 +364,56 @@ function submitFormData() {
     data.posts.push(newPost);
     localStorage.setItem("data", JSON.stringify(data)); // Store data in localStorage
 
-    console.log("Post successfully added:", newPost);
   } catch (error) {
     console.error("Error adding post:", error);
   } finally {
     renderPost(newPost);
   }
 }
-// ------------------------------------------------------------------------------------------
+
+function submitAddCommentFormData() {
+  let postId;
+  try {
+    // Getting form data
+    const body = document.getElementById("commentBody").value;
+    const user = data.users.find((user) => user.id == document.getElementById("userId").value);
+    postId = document.getElementById("postId").value;
+    const id = data.comments.reduce((max, comment) => (comment.id > max ? comment.id : max), 0) + 1;
+    const userData = {id: user.id, fullName: user.firstName + " " + user.lastName, username: user.username};
+    newComment = {
+      id: id,
+      body: body,
+      likes: 0,
+      postId: postId,
+      user: userData,
+    };
+
+    data.comments.push(newComment);
+    localStorage.setItem("data", JSON.stringify(data)); // Store data in localStorage
+
+  } catch (error) {
+    console.error("Error adding post:", error);
+  }
+  finally
+  {
+    renderPost(data.posts.find((post) => post.id == postId))
+  }
+}
+
+// -------- Call when loading page ----------------------------------------------------
 
 /**
  * Calls {@link fetchData} to fetch data and {@link renderPosts} to render it in a posts div on a webpage.
  */
 async function onPageLoad() {
   try {
-    if (data == null) {
+    if (data == null) // or undefined
+    {
       await fetchData();
     }
-    console.log(data);
     renderPosts();
   } catch (error) {
-    console.error("Error in fetchData:", error);
+    console.error("Error while loading page: ", error);
   }
 }
 
