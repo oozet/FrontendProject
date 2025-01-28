@@ -59,7 +59,7 @@ article {
 }
 
 p {
-  display: inline-block;
+  display: block;
 }
 
 form {
@@ -82,6 +82,9 @@ h2 {
   margin-right: auto;
 }
 
+.react {
+  margin-left: 1rem;
+}
 .react:hover {
   cursor: pointer;
 }

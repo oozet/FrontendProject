@@ -217,15 +217,15 @@ function renderPost(post) {
     })
   );
 
-  const likes = Object.assign(document.createElement("p"), {
-    textContent: post.reactions.likes,
+  const likes = Object.assign(document.createElement("span"), {
+    className: "react",
+    textContent: post.reactions.likes + "❤️"
   });
-  likes.appendChild(Object.assign(document.createElement("div"), { className: "react", textContent: "❤️" }));
   likes.addEventListener("click", () => {
     post.reactions.likes++;
     likes.textContent = post.reactions.likes + "❤️";
   });
-  const dislikes = Object.assign(document.createElement("p"), {
+  const dislikes = Object.assign(document.createElement("span"), {
     className: "react",
     textContent: post.reactions.dislikes + "💩",
   });
