@@ -12,9 +12,9 @@ var comments;
  */
 async function fetchData() {
   try {
-    const data = JSON.parse(localStorage.getItem("data")); // Get data from localStorage or null if not exists
-    if (data == null) // or undefined
-    {
+    let data = JSON.parse(localStorage.getItem("data")); // Get data from localStorage or null if not exists
+    if (data == null) {
+      // or undefined
       data = await fetchAllDummyJSON();
 
       localStorage.setItem("data", JSON.stringify(data)); // Store data in localStorage
@@ -23,7 +23,6 @@ async function fetchData() {
     users = data.users;
     posts = data.posts;
     comments = data.comments;
-
   } catch (error) {
     console.error("Error while fetching: " + error + " Rethrowing to fetchData.");
     throw error;
@@ -161,7 +160,9 @@ function renderPosts() {
   const mainContent = document.getElementById("main-content");
   mainContent.innerHTML = ""; // Clear any existing content
 
-  posts.forEach((post) => {
+  for (let i = posts.length - 1; i >= 0; i--) {
+    //posts.forEach((post) => {
+    let post = posts[i];
     let bodyPreview = post.body.substring(0, 60);
     const spaceIndex = bodyPreview.lastIndexOf(" ");
     if (spaceIndex > 40) {
@@ -187,7 +188,7 @@ function renderPosts() {
       }
     });
     mainContent.appendChild(postElement);
-  });
+  } //);
 }
 
 /**
@@ -219,7 +220,7 @@ function renderPost(post) {
 
   const likes = Object.assign(document.createElement("span"), {
     className: "react",
-    textContent: post.reactions.likes + "❤️"
+    textContent: post.reactions.likes + "❤️",
   });
   likes.addEventListener("click", () => {
     post.reactions.likes++;
@@ -252,7 +253,6 @@ function renderPost(post) {
 
 // --- Rendering helpers ---
 
-
 /**
  * Creates a HTMLElement of a form to add a comment to a post
  * @returns {HTMLElement}
@@ -269,8 +269,8 @@ function getAddCommentFormElement(postId) {
         htmlFor: "commentBody",
         textContent: "Comment:",
       })
-      );
-    
+    );
+
     const postIdElement = document.createElement("input");
     postIdElement.id = "postId";
     postIdElement.value = postId;
@@ -369,8 +369,7 @@ function submitAddPostFormData() {
     };
 
     posts.push(newPost);
-    localStorage.setItem("data", JSON.stringify(data)); // Store data in localStorage
-
+    localStorage.setItem("data.posts", JSON.stringify(posts)); // Store data in localStorage
   } catch (error) {
     console.error("Error adding post:", error);
   } finally {
@@ -390,7 +389,7 @@ function submitAddCommentFormData() {
     const user = users.find((user) => user.id == document.getElementById("userId").value);
     postId = document.getElementById("postId").value;
     const id = comments.reduce((max, comment) => (comment.id > max ? comment.id : max), 0) + 1;
-    const userData = {id: user.id, fullName: user.firstName + " " + user.lastName, username: user.username};
+    const userData = { id: user.id, fullName: user.firstName + " " + user.lastName, username: user.username };
     newComment = {
       id: id,
       body: body,
@@ -400,14 +399,11 @@ function submitAddCommentFormData() {
     };
 
     comments.push(newComment);
-    localStorage.setItem("data", JSON.stringify(data)); // Store data in localStorage
-
+    localStorage.setItem("data.comments", JSON.stringify(comments)); // Store data in localStorage
   } catch (error) {
     console.error("Error adding post:", error);
-  }
-  finally
-  {
-    renderPost(posts.find((post) => post.id == postId))
+  } finally {
+    renderPost(posts.find((post) => post.id == postId));
   }
 }
 
@@ -418,8 +414,8 @@ function submitAddCommentFormData() {
  */
 async function onPageLoad() {
   try {
-    if (users == null || comments == null || posts == null) // or undefined
-    {
+    if (users == null || comments == null || posts == null) {
+      // or undefined
       await fetchData();
     }
     renderPosts();
