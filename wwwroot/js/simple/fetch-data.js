@@ -24,7 +24,8 @@ async function fetchData() {
     posts = data.posts;
     comments = data.comments;
   } catch (error) {
-    console.error("Error while fetching: " + error + " Rethrowing to fetchData.");
+    
+    console.error("Error while fetching: " + error.message + " Rethrowing to fetchData.");
     throw error;
   }
 }
@@ -58,7 +59,7 @@ async function fetchAllDummyJSON() {
 
     return data;
   } catch (error) {
-    console.error("Error while fetching data from DummyJSON API: " + error);
+    error.message = "Error while fetching data from DummyJSON API: " + error.message;
     throw error;
   }
 }
@@ -147,8 +148,7 @@ function renderNewPostForm() {
     mainContent.appendChild(articleElemenet);
     formElement.addEventListener("submit", submitAddPostFormData);
   } catch (error) {
-    console.error("Error while rendering user form: " + error + " Rethrowing to caller.");
-    throw error;
+    console.error("Error while rendering user form: " + error.message);
   }
 }
 
@@ -390,7 +390,7 @@ function submitAddCommentFormData() {
     postId = document.getElementById("postId").value;
     const id = comments.reduce((max, comment) => (comment.id > max ? comment.id : max), 0) + 1;
     const userData = { id: user.id, fullName: user.firstName + " " + user.lastName, username: user.username };
-    newComment = {
+    const newComment = {
       id: id,
       body: body,
       likes: 0,
@@ -420,7 +420,7 @@ async function onPageLoad() {
     }
     renderPosts();
   } catch (error) {
-    console.error("Error while loading page: ", error);
+    console.error("Error while loading page: ", error.message);
   }
 }
 
