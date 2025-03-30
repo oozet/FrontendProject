@@ -1,5 +1,5 @@
 import { submitAddCommentFormData } from "./form-submit.js";
-import { users, comments } from "./fetch-data.js";
+import { users, comments, saveToLocalStorage } from "./fetch-data.js";
 // --- Rendering helpers ---
 
 /**
@@ -74,7 +74,13 @@ export function getCommentElement(comment) {
   const author = document.createElement("p");
   author.textContent = "-" + comment.user.username;
   const likes = document.createElement("span");
+  likes.className = "react";
   likes.textContent = comment.likes + "❤️";
+  likes.addEventListener("click", () => {
+    comment.likes++;
+    likes.textContent = comment.likes + "❤️";
+    saveToLocalStorage();
+  });
 
   const commentElement = document.createElement("article");
   commentElement.className = "comment";
@@ -91,6 +97,9 @@ export function getUsername(userId) {
   return users.filter((user) => user.id == userId)[0].username;
 }
 
+/**
+ * Clear the main-content element.
+ */
 export function clearMainContent() {
   const mainContent = document.getElementById("main-content");
   mainContent.innerHTML = ""; // Clear any existing content

@@ -18,6 +18,7 @@ export function submitAddPostFormData() {
   const cleanedTags = tags
     .split(/\s+/) // Split by whitespace
     .map((word) => word.replace(/[^a-zA-Z0-9]/g, "")) // Remove non-alphanumeric characters
+    .filter((word, index, array) => array.indexOf(word) === index) // Remove duplicates
     .filter((word) => word.length > 0); // Filter out any empty strings
   const userId = document.getElementById("userId").value;
   const id = posts.reduce((max, post) => (post.id > max ? post.id : max), 0) + 1;

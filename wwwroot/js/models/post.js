@@ -1,3 +1,7 @@
+/**
+ * A class containing the properties of a post.
+ * @class Post
+ */
 export class Post {
   constructor(id, title, body, tags, userId) {
     this.id = id;

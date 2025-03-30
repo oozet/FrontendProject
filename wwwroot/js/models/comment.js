@@ -1,3 +1,7 @@
+/**
+ * A class containing the properties of a comment.
+ * @class Comment
+ */
 export class Comment {
   constructor(id, body, postId, userData) {
     this.id = id;
