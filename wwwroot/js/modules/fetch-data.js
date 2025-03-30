@@ -1,21 +1,12 @@
-import {renderPosts} from "./render-data.js";
+import { renderPosts } from "./render-data.js";
 
-class Post{
-  constructor(id, title, body, cleanedTags, userId){
-    this.id = id;
-    this.title = title;
-    this.body = body;
-    this.tags = tags
-    this.reactions = { likes: 0, dislikes: 0 }
-    this.views = 0;
-    this.userId = userId;
-  }
-}
+// ----------- Global data variables -----------------------------------------------
 var users;
 var posts;
 var comments;
 
-export {users, posts, comments}
+export { users, posts, comments };
+
 // ----------- Data retrieval ------------------------------------------------------
 
 /**
@@ -37,7 +28,6 @@ async function fetchData() {
     posts = data.posts;
     comments = data.comments;
   } catch (error) {
-    
     console.error("Error while fetching: " + error.message + " Rethrowing to fetchData.");
     throw error;
   }
@@ -77,7 +67,10 @@ async function fetchAllDummyJSON() {
   }
 }
 
-
+export function saveToLocalStorage() {
+  const data = { users, posts, comments };
+  localStorage.setItem("data", JSON.stringify(data));
+}
 
 // -------- Call when loading page ----------------------------------------------------
 
@@ -91,8 +84,9 @@ export async function onPageLoad() {
       await fetchData();
     }
     renderPosts();
+    console.log(posts);
   } catch (error) {
-    console.error("Error while loading page: ", error.message);
+    console.error("Error while loading page: ", error);
   }
 }
 
